@@ -17,8 +17,10 @@
     "@types/styled-components-react-native": "^5.2.5",
     "axios": "^1.8.1",
     "expo": "~52.0.37",
+    "expo-image-picker": "~16.0.6",
     "expo-status-bar": "~2.0.1",
     "firebase": "^11.3.1",
+    "git": "^0.1.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-native": "0.76.7",
@@ -28,7 +30,7 @@
     "react-native-screens": "~4.4.0",
     "styled-components": "^6.1.15",
     "styled-components-react-native": "^1.0.0",
-    "expo-image-picker": "~16.0.6"
+    "expo-file-system": "~18.0.11"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",

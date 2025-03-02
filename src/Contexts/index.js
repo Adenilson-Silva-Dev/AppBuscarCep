@@ -6,6 +6,7 @@ import { auth } from '../services/firebaseConnection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../services/api';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 
 export const AuthContext = createContext({});
@@ -19,35 +20,45 @@ export default function AuthProvaider({ children }) {
     const [ visibleButtonIsInput, setVisibleButtonIsInput ] = useState(true);
 
     const [ image, setImage ] = useState(null);
+    const [ savedImageUri, setSavedImageUri ] = useState(null);
 
 
     useEffect(() => {
+
+        if (user && user.uid) {
+            console.log('uid exists:', user.uid);
+        }
         async function loadStorange() {
             const userStorange = await AsyncStorage.getItem('@devcep');
 
             if (userStorange) {
-                setUser(JSON.parse(userStorange));
+                setUser(userStorange);
             }
         }
 
         loadStorange();
-    }, []);
+    }, [ user ]);
+
+
 
     useEffect(() => {
         async function loadImage() {
+            if (!user || !user.uid) return;
+
             const savedImageUri = await AsyncStorage.getItem(`@userImage_${user.uid}`);
 
             if (savedImageUri) {
-                setImage(savedImageUri)
+                setImage(savedImageUri);
             }
-
-
         }
-        loadImage()
-    }, [ user.uid ])
+
+        loadImage();
+    }, [ user ]);
 
     async function signUp(email, password, name) {
         setLoadingAuth(true);
+
+
 
         try {
             const useCredential = await createUserWithEmailAndPassword(
@@ -149,8 +160,25 @@ export default function AuthProvaider({ children }) {
 
             await AsyncStorage.setItem(`@userImage_${user.uid}`, uri)
 
+            const saveImage = async () => {
+                if (!image) return alert('Selecione uma imagem');
+
+                const fileName = `image_${user.uid}.jpg`;
+                const fileUri = FileSystem.documentDirectory + fileName;
+
+                await FileSystem.copyAsync({
+                    from: image,
+                    to: fileUri
+                });
+
+                setSavedImageUri(fileUri);
+                setImage(savedImageUri)
+                alert('Imagem salva com sucesso')
+            }
+            saveImage()
         }
     }
+    console.log(savedImageUri)
     return (
         <AuthContext.Provider value={{ signed: !!user, user, signUp, signIn, logOut, loadingAuth, setVisibleModal, visibleModal, getCep, dadosCep, loadingDataCep, visibleButtonIsInput, setVisibleButtonIsInput, imageProfile, image }}>
             {children}
