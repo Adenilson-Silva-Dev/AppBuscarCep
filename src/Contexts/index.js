@@ -20,7 +20,7 @@ export default function AuthProvaider({ children }) {
     const [ visibleButtonIsInput, setVisibleButtonIsInput ] = useState(true);
 
     const [ image, setImage ] = useState(null);
-    const [ savedImageUri, setSavedImageUri ] = useState(null);
+
 
 
     useEffect(() => {
@@ -37,23 +37,10 @@ export default function AuthProvaider({ children }) {
         }
 
         loadStorange();
-    }, [ user ]);
+    }, []);
 
 
 
-    useEffect(() => {
-        async function loadImage() {
-            if (!user || !user.uid) return;
-
-            const savedImageUri = await AsyncStorage.getItem(`@userImage_${user.uid}`);
-
-            if (savedImageUri) {
-                setImage(savedImageUri);
-            }
-        }
-
-        loadImage();
-    }, [ user ]);
 
     async function signUp(email, password, name) {
         setLoadingAuth(true);
@@ -156,29 +143,9 @@ export default function AuthProvaider({ children }) {
         if (!result.canceled) {
             const uri = result.assets[ 0 ].uri;
             setImage(uri);
-
-
-            await AsyncStorage.setItem(`@userImage_${user.uid}`, uri)
-
-            const saveImage = async () => {
-                if (!image) return alert('Selecione uma imagem');
-
-                const fileName = `image_${user.uid}.jpg`;
-                const fileUri = FileSystem.documentDirectory + fileName;
-
-                await FileSystem.copyAsync({
-                    from: image,
-                    to: fileUri
-                });
-
-                setSavedImageUri(fileUri);
-                setImage(savedImageUri)
-                alert('Imagem salva com sucesso')
-            }
-            saveImage()
         }
     }
-    console.log(savedImageUri)
+
     return (
         <AuthContext.Provider value={{ signed: !!user, user, signUp, signIn, logOut, loadingAuth, setVisibleModal, visibleModal, getCep, dadosCep, loadingDataCep, visibleButtonIsInput, setVisibleButtonIsInput, imageProfile, image }}>
             {children}
